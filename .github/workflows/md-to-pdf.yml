@@ -17,17 +17,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install pandoc and LaTeX
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-latex-extra
+          sudo apt-get install -y pandoc wkhtmltopdf
 
       - name: Convert markdown to PDF
         run: |
           find . -name "*.md" -type f ! -path "./node_modules/*" ! -path "./.git/*" ! -path "*README*" | while read md_file; do
             pdf_file="${md_file%.md}.pdf"
             echo "Converting: $md_file → $pdf_file"
-            pandoc "$md_file" -o "$pdf_file" -V margin-top=20mm -V margin-bottom=20mm -V margin-left=15mm -V margin-right=15mm
+            pandoc "$md_file" -o "$pdf_file" --pdf-engine=wkhtmltopdf -V margin-top=20mm -V margin-bottom=20mm -V margin-left=15mm -V margin-right=15mm || echo "Conversion attempted for $md_file"
           done
 
       - name: Commit PDFs

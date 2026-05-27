@@ -11,52 +11,6 @@ on:
 
 permissions:
   contents: write
-
-jobs:
-  convert-md-to-pdf:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc wkhtmltopdf
-
-      - name: Convert markdown to PDF
-        run: |
-          find . -name "*.md" -type f ! -path "./node_modules/*" ! -path "./.git/*" ! -path "*README*" | while read md_file; do
-            pdf_file="${md_file%.md}.pdf"
-            echo "Converting: $md_file → $pdf_file"
-            pandoc "$md_file" -o "$pdf_file" --pdf-engineThe permission issue persists. Let me check your repository settings:I found the issue! 🔍 Your repository has **branch protection rules** that prevent the GitHub Actions bot from pushing directly.
-
-## **The Problem:**
-Even with `permissions: contents: write`, the protection rules block the push.
-
-## **Solution - Two Options:**
-
-### **Option 1: Create a Pull Request Instead (Recommended)**
-
-Update your workflow to create a PR instead of pushing directly:
-
-```yaml
-name: Convert Markdown to PDF
-
-on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - '**.md'
-  workflow_dispatch:
-
-permissions:
-  contents: write
   pull-requests: write
 
 jobs:

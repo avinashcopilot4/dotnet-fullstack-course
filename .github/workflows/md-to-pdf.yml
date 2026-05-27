@@ -9,10 +9,6 @@ on:
       - '**.md'
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   convert-md-to-pdf:
     runs-on: ubuntu-latest
@@ -34,10 +30,8 @@ jobs:
             pandoc "$md_file" -o "$pdf_file" --pdf-engine=wkhtmltopdf -V margin-top=20mm -V margin-bottom=20mm -V margin-left=15mm -V margin-right=15mm
           done
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+      - name: Upload PDFs as artifact
+        uses: actions/upload-artifact@v3
         with:
-          commit-message: '🤖 Auto-convert: Markdown to PDF'
-          title: 'Auto-generated PDFs from Markdown'
-          body: 'Automatically converted markdown files to PDF'
-          branch: auto-pdf-conversion
+          name: converted-pdfs
+          path: '**/*.pdf'

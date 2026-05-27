@@ -9,6 +9,9 @@ on:
       - '**.md'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   convert-md-to-pdf:
     runs-on: ubuntu-latest
@@ -27,7 +30,7 @@ jobs:
           find . -name "*.md" -type f ! -path "./node_modules/*" ! -path "./.git/*" ! -path "*README*" | while read md_file; do
             pdf_file="${md_file%.md}.pdf"
             echo "Converting: $md_file → $pdf_file"
-            pandoc "$md_file" -o "$pdf_file" --pdf-engine=wkhtmltopdf -V margin-top=20mm -V margin-bottom=20mm -V margin-left=15mm -V margin-right=15mm || echo "Conversion attempted for $md_file"
+            pandoc "$md_file" -o "$pdf_file" --pdf-engine=wkhtmltopdf -V margin-top=20mm -V margin-bottom=20mm -V margin-left=15mm -V margin-right=15mm
           done
 
       - name: Commit PDFs
@@ -36,4 +39,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git add "**/*.pdf"
           git commit -m "🤖 Auto-convert: Markdown to PDF" || echo "No changes"
-          git push || echo "Nothing to push"
+          git push

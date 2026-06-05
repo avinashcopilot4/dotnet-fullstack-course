@@ -1,0 +1,255 @@
+# JavaScript DOM – Events
+
+---
+
+## 📘 What are Events?
+
+Events are actions that happen in the browser — a click, a keypress, a form submission, a page load. JavaScript can **listen** for these events and **respond** to them.
+
+---
+
+## 🎯 Adding Event Listeners
+
+### ✅ Recommended: `addEventListener`
+```js
+const btn = document.querySelector("button");
+
+btn.addEventListener("click", function(event) {
+  console.log("Button clicked!");
+  console.log(event);  // Event object
+});
+
+// Arrow function
+btn.addEventListener("click", (e) => {
+  console.log("Clicked", e.target);
+});
+```
+
+### Old Ways (avoid)
+```js
+btn.onclick = function() { ... };        // replaces any existing handler
+<button onclick="doSomething()">         // HTML attribute — hard to maintain
+```
+
+### Removing Event Listeners
+```js
+function handleClick(e) {
+  console.log("Clicked");
+}
+
+btn.addEventListener("click", handleClick);
+btn.removeEventListener("click", handleClick);  // must be same function reference
+```
+
+---
+
+## 📋 The Event Object
+
+```js
+btn.addEventListener("click", (e) => {
+  e.target          // element that triggered the event
+  e.currentTarget   // element the listener is attached to
+  e.type            // "click"
+  e.timeStamp       // time since page load
+
+  e.preventDefault()  // stop default browser behavior
+  e.stopPropagation() // stop event from bubbling up
+});
+```
+
+---
+
+## 🖱️ Common Event Types
+
+### Mouse Events
+```js
+element.addEventListener("click", handler);       // single click
+element.addEventListener("dblclick", handler);    // double click
+element.addEventListener("mouseenter", handler);  // hover enter (no bubble)
+element.addEventListener("mouseleave", handler);  // hover leave (no bubble)
+element.addEventListener("mouseover", handler);   // hover (bubbles)
+element.addEventListener("mouseout", handler);    // leave (bubbles)
+element.addEventListener("mousemove", handler);   // mouse moving
+element.addEventListener("contextmenu", handler); // right click
+```
+
+### Keyboard Events
+```js
+document.addEventListener("keydown", (e) => {
+  console.log(e.key);     // "Enter", "a", "ArrowUp"
+  console.log(e.code);    // "Enter", "KeyA", "ArrowUp"
+  console.log(e.ctrlKey); // true if Ctrl held
+  console.log(e.shiftKey);
+  console.log(e.altKey);
+});
+
+document.addEventListener("keyup", handler);
+document.addEventListener("keypress", handler);  // deprecated
+```
+
+### Form Events
+```js
+form.addEventListener("submit", (e) => {
+  e.preventDefault();     // stop page reload
+  // handle form data
+});
+
+input.addEventListener("input", (e) => {
+  console.log(e.target.value);   // live value as user types
+});
+
+input.addEventListener("change", handler);   // after user leaves field
+input.addEventListener("focus", handler);    // field gains focus
+input.addEventListener("blur", handler);     // field loses focus
+```
+
+### Window / Document Events
+```js
+window.addEventListener("load", handler);           // page fully loaded
+document.addEventListener("DOMContentLoaded", handler); // HTML parsed
+window.addEventListener("resize", handler);         // window resized
+window.addEventListener("scroll", handler);         // page scrolled
+```
+
+---
+
+## 🫧 Event Bubbling & Capturing
+
+Events travel in two phases:
+1. **Capturing** — from `window` down to the target
+2. **Bubbling** — from the target back up to `window`
+
+```
+Window
+  └── Document
+       └── Body
+            └── Div  ← event bubbles UP from here
+                 └── Button  ← user clicks here (target)
+```
+
+```js
+// By default, listeners fire in BUBBLING phase
+parent.addEventListener("click", handler);          // bubbling (default)
+parent.addEventListener("click", handler, true);    // capturing phase
+
+// Clicking the button also fires the parent's click listener (bubbling)
+```
+
+### `stopPropagation()`
+```js
+child.addEventListener("click", (e) => {
+  e.stopPropagation();  // prevent event from bubbling to parent
+  console.log("child only");
+});
+```
+
+---
+
+## 📣 Event Delegation
+
+Instead of attaching listeners to each child, attach ONE listener to the parent. Use `e.target` to identify which child was clicked.
+
+```js
+// ❌ Bad — attaches N listeners
+document.querySelectorAll("li").forEach(li => {
+  li.addEventListener("click", handler);
+});
+
+// ✅ Good — one listener on the parent
+const ul = document.querySelector("ul");
+
+ul.addEventListener("click", (e) => {
+  if (e.target.tagName === "LI") {
+    console.log("Clicked:", e.target.textContent);
+    e.target.classList.toggle("done");
+  }
+});
+```
+
+**Benefits:**
+- Works for dynamically added elements ✅
+- Better memory usage ✅
+- Cleaner code ✅
+
+---
+
+## 🔂 Once & Options
+
+```js
+// Fire only once, then auto-remove
+btn.addEventListener("click", handler, { once: true });
+
+// Options object
+btn.addEventListener("click", handler, {
+  once: true,      // remove after first fire
+  capture: true,   // use capturing phase
+  passive: true    // hint: won't call preventDefault (improves scroll perf)
+});
+```
+
+---
+
+## 💡 Practical Examples
+
+### Toggle Dark Mode
+```js
+const toggle = document.querySelector("#theme-toggle");
+
+toggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+});
+```
+
+### Live Character Counter
+```js
+const input = document.querySelector("textarea");
+const counter = document.querySelector("#count");
+
+input.addEventListener("input", () => {
+  counter.textContent = `${input.value.length} / 200`;
+});
+```
+
+### Form Validation
+```js
+const form = document.querySelector("form");
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const name = form.querySelector("#name").value.trim();
+  if (!name) {
+    alert("Name is required!");
+    return;
+  }
+  console.log("Submitted:", name);
+});
+```
+
+---
+
+## 📝 Interview Questions
+
+**Q1. What is the difference between `addEventListener` and `onclick`?**
+> `addEventListener` can attach multiple listeners to the same event without overwriting. `onclick` only allows one handler — assigning a new one replaces the previous. `addEventListener` also supports options like `once` and `capture`.
+
+**Q2. What is event bubbling?**
+> When an event fires on a child element, it bubbles up through all parent elements triggering any matching listeners along the way. For example, clicking a `<button>` inside a `<div>` also triggers the `<div>`'s click listener.
+
+**Q3. What is event delegation and why is it useful?**
+> Attaching a single event listener to a parent to handle events for multiple children using `e.target`. It's useful because it's memory-efficient, and it automatically works for dynamically added child elements.
+
+**Q4. What is `e.target` vs `e.currentTarget`?**
+> `e.target` is the element that **originally triggered** the event (where the user clicked). `e.currentTarget` is the element the **listener is attached to**. They differ when bubbling — the listener is on the parent but the click was on the child.
+
+**Q5. What does `e.preventDefault()` do? Give an example.**
+> It stops the browser's default behavior for that event. Example: on a form `submit` event, it prevents the page from reloading. On a link click, it prevents navigation.
+
+**Q6. What is the difference between `mouseenter` and `mouseover`?**
+> `mouseenter` fires only when the mouse enters the element itself — it does NOT bubble. `mouseover` fires when entering the element OR any of its descendants and bubbles up. Use `mouseenter`/`mouseleave` for simple hover effects.
+
+**Q7. What is `DOMContentLoaded` vs `window.load`?**
+> `DOMContentLoaded` fires when the HTML is fully parsed and the DOM is ready — images and stylesheets may still be loading. `window.load` fires only after the entire page (images, scripts, styles) has fully loaded. `DOMContentLoaded` is usually preferred for running JS.
+
+---
+
+*Next: Async JavaScript (Callbacks, Promises, Async/Await) →*

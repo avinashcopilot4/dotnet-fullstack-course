@@ -1,0 +1,289 @@
+# JavaScript – Async JS: Callbacks, Promises, Async/Await & Fetch
+
+---
+
+## 📘 Why Async JavaScript?
+
+JavaScript is **single-threaded** — it can only do one thing at a time. Async programming lets JS start a long task (API call, timer) and continue running other code while waiting for the result.
+
+```
+Synchronous (blocking):   Task1 → Task2 → Task3
+Asynchronous (non-blocking): Start Task1 → Start Task2 → Task1 done → Task2 done
+```
+
+---
+
+## ⏱️ setTimeout & setInterval
+
+```js
+// Run once after delay (ms)
+setTimeout(() => {
+  console.log("Runs after 2 seconds");
+}, 2000);
+
+// Run repeatedly
+const id = setInterval(() => {
+  console.log("Every second");
+}, 1000);
+
+// Stop it
+clearInterval(id);
+clearTimeout(timerId);
+
+// setTimeout with 0ms — runs after current stack clears
+setTimeout(() => console.log("After"), 0);
+console.log("Before");
+// Output: "Before" → "After"
+```
+
+---
+
+## 📞 Callbacks
+
+A callback is a **function passed as an argument** to another function, called after an operation completes.
+
+```js
+function fetchData(callback) {
+  setTimeout(() => {
+    const data = { id: 1, name: "Ali" };
+    callback(data);
+  }, 1000);
+}
+
+fetchData((data) => {
+  console.log(data.name);  // "Ali"
+});
+```
+
+### Callback Hell (the problem)
+```js
+// Nested callbacks become unreadable
+getUser(userId, (user) => {
+  getPosts(user.id, (posts) => {
+    getComments(posts[0].id, (comments) => {
+      getLikes(comments[0].id, (likes) => {
+        // 😱 Pyramid of doom
+      });
+    });
+  });
+});
+```
+
+---
+
+## 🤝 Promises
+
+A Promise is an object representing the **eventual success or failure** of an async operation. It has 3 states: **pending**, **fulfilled**, **rejected**.
+
+### Creating a Promise
+```js
+const promise = new Promise((resolve, reject) => {
+  const success = true;
+
+  if (success) {
+    resolve("Data loaded!");   // fulfilled
+  } else {
+    reject("Error occurred!"); // rejected
+  }
+});
+```
+
+### Consuming a Promise
+```js
+promise
+  .then(result => {
+    console.log(result);   // "Data loaded!"
+    return result.toUpperCase();  // chain it
+  })
+  .then(upper => console.log(upper))  // "DATA LOADED!"
+  .catch(error => console.error(error))   // handles rejection
+  .finally(() => console.log("Done"));    // always runs
+```
+
+### Promise Chaining
+```js
+fetchUser(1)
+  .then(user => fetchPosts(user.id))
+  .then(posts => fetchComments(posts[0].id))
+  .then(comments => console.log(comments))
+  .catch(err => console.error(err));
+// Much cleaner than callback hell!
+```
+
+### Promise Utilities
+```js
+// All must succeed — fails fast if any rejects
+Promise.all([p1, p2, p3])
+  .then(([result1, result2, result3]) => { ... });
+
+// Wait for ALL, success or failure
+Promise.allSettled([p1, p2, p3])
+  .then(results => results.forEach(r => console.log(r.status)));
+
+// First to settle (resolve OR reject)
+Promise.race([p1, p2, p3]).then(first => { ... });
+
+// First to RESOLVE (ignores rejections)
+Promise.any([p1, p2, p3]).then(first => { ... });
+
+// Immediately resolved/rejected
+Promise.resolve("value")
+Promise.reject(new Error("fail"))
+```
+
+---
+
+## ✨ Async / Await (ES2017)
+
+`async/await` is **syntactic sugar** over Promises — cleaner, more readable.
+
+```js
+// async function always returns a Promise
+async function fetchUser(id) {
+  const response = await fetch(`/api/users/${id}`);  // wait here
+  const user = await response.json();                // wait here
+  return user;
+}
+```
+
+### Error Handling with try/catch
+```js
+async function loadData() {
+  try {
+    const response = await fetch("https://api.example.com/data");
+
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Failed:", error.message);
+  } finally {
+    console.log("Request complete");
+  }
+}
+
+loadData();
+```
+
+### Parallel Requests (don't await sequentially!)
+```js
+// ❌ Sequential — slower (waits one by one)
+const user  = await fetchUser(1);
+const posts = await fetchPosts(1);
+
+// ✅ Parallel — faster (both run simultaneously)
+const [user, posts] = await Promise.all([
+  fetchUser(1),
+  fetchPosts(1)
+]);
+```
+
+---
+
+## 🌐 Fetch API
+
+`fetch` is the modern way to make HTTP requests in the browser.
+
+### GET Request
+```js
+async function getUsers() {
+  const response = await fetch("https://jsonplaceholder.typicode.com/users");
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  const users = await response.json();
+  return users;
+}
+```
+
+### POST Request
+```js
+async function createUser(userData) {
+  const response = await fetch("https://api.example.com/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer TOKEN"
+    },
+    body: JSON.stringify(userData)
+  });
+
+  const result = await response.json();
+  return result;
+}
+
+createUser({ name: "Ali", email: "ali@example.com" });
+```
+
+### Response Object
+```js
+response.ok           // true if status 200–299
+response.status       // 200, 404, 500 etc.
+response.statusText   // "OK", "Not Found"
+
+// Parse body (can only be called ONCE)
+await response.json()     // parse JSON
+await response.text()     // plain text
+await response.blob()     // binary data (images)
+await response.formData() // form data
+```
+
+---
+
+## 🔁 Event Loop (How Async Works)
+
+```
+Call Stack → Web APIs → Callback Queue → Event Loop → Call Stack
+```
+
+```js
+console.log("1");              // sync — runs first
+
+setTimeout(() => {
+  console.log("2");            // async — queued
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log("3");            // microtask — runs before timeout
+});
+
+console.log("4");              // sync — runs second
+
+// Output: 1 → 4 → 3 → 2
+```
+
+> **Microtask queue** (Promises) has higher priority than the **macrotask queue** (setTimeout, setInterval).
+
+---
+
+## 📝 Interview Questions
+
+**Q1. What is the difference between synchronous and asynchronous code?**
+> Synchronous code runs line by line — each line waits for the previous. Asynchronous code starts a task and moves on, handling the result later via callbacks, Promises, or async/await. This is critical for operations like API calls that would otherwise freeze the browser.
+
+**Q2. What is a Promise and what are its three states?**
+> A Promise represents a value that may be available now, later, or never. States: **pending** (initial), **fulfilled** (resolved successfully), **rejected** (failed). Once settled, a promise cannot change state.
+
+**Q3. What is the difference between `Promise.all` and `Promise.allSettled`?**
+> `Promise.all` runs all promises in parallel and resolves when all succeed — it **fails fast** if any one rejects. `Promise.allSettled` waits for all to complete regardless of success/failure and returns the status of each.
+
+**Q4. What is async/await and how is it different from `.then()`?**
+> `async/await` is syntactic sugar over Promises. It makes asynchronous code look synchronous and is easier to read. Error handling uses `try/catch` instead of `.catch()`. Both use Promises under the hood.
+
+**Q5. What happens if you don't `await` a Promise inside an `async` function?**
+> The function continues without waiting for the result. You get the unresolved Promise object, not the value. Common bug — always `await` Promises you need the result from.
+
+**Q6. What is the Event Loop?**
+> The event loop continuously checks if the call stack is empty. If it is, it moves tasks from the callback queue (setTimeout) or microtask queue (Promises) into the stack. Microtasks run before macrotasks.
+
+**Q7. Why is `fetch` better than `XMLHttpRequest`?**
+> `fetch` uses Promises for cleaner chaining, has a simpler and more readable API, supports async/await, and works naturally with modern JS. `XMLHttpRequest` uses callbacks and has a more complex API.
+
+---
+
+*Next: localStorage, sessionStorage & Browser APIs →*

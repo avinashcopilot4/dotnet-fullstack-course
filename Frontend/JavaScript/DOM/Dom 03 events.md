@@ -101,6 +101,21 @@ input.addEventListener("input", (e) => {
 input.addEventListener("change", handler);   // after user leaves field
 input.addEventListener("focus", handler);    // field gains focus
 input.addEventListener("blur", handler);     // field loses focus
+
+| **Event Name** | **Purpose / When It Fires** | **Example Use Case** |
+| --- | --- | --- |
+| **input** | Fires whenever the value of the input changes (e.g., typing, deleting). | Live search suggestions as the user types. |
+| **change** | Fires when the input value is committed (e.g., pressing Enter, leaving the field). | Validate an email after the user finishes typing. |
+| **focus** | Fires when the input gains focus (clicked or tabbed into). | Highlight the field with a border when active. |
+| **blur** | Fires when the input loses focus. | Hide helper text when the user leaves the field. |
+| **keydown / keyup / keypress** | Fires when keys are pressed, released, or held down. | Capture shortcuts or detect Enter key submission. |
+| **click** | Fires when the input is clicked. | Trigger a file picker for `<input type="file">`. |
+| **dblclick** | Fires on double-click. | Select all text in a text field. |
+| **submit** (form-level) | Fires when the form containing the input is submitted. | Validate all inputs before sending data. |
+| **invalid** | Fires when the input fails HTML5 validation. | Show error messages for required fields. |
+| **compositionstart / compositionupdate / compositionend** | Fires during text input with IMEs (e.g., Chinese/Japanese input). | Handle complex text entry properly. |
+| **paste / cut / copy** | Fires when text is pasted, cut, or copied. | Prevent pasting into password fields. |
+
 ```
 
 ### Window / Document Events

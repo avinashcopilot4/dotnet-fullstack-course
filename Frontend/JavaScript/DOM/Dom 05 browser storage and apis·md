@@ -1,0 +1,221 @@
+# JavaScript – Browser Storage & Useful Browser APIs
+
+---
+
+## 💾 localStorage
+
+Stores data **persistently** in the browser — survives page reloads and tab/browser closes. Max ~5MB. Strings only.
+
+```js
+// Store
+localStorage.setItem("username", "Ali");
+localStorage.setItem("theme", "dark");
+
+// Retrieve
+const name  = localStorage.getItem("username");  // "Ali"
+const theme = localStorage.getItem("theme");      // "dark"
+const missing = localStorage.getItem("xyz");      // null
+
+// Remove one
+localStorage.removeItem("theme");
+
+// Clear all
+localStorage.clear();
+
+// Length
+localStorage.length;
+```
+
+### Storing Objects (must JSON-serialize)
+```js
+const user = { name: "Ali", age: 25 };
+
+// Save
+localStorage.setItem("user", JSON.stringify(user));
+
+// Retrieve
+const stored = JSON.parse(localStorage.getItem("user"));
+console.log(stored.name);  // "Ali"
+
+// Safe retrieve helper
+function getItem(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch {
+    return null;
+  }
+}
+```
+
+---
+
+## 🕐 sessionStorage
+
+Same API as `localStorage`, but data is **cleared when the tab is closed**.
+
+```js
+sessionStorage.setItem("token", "abc123");
+sessionStorage.getItem("token");
+sessionStorage.removeItem("token");
+sessionStorage.clear();
+```
+
+---
+
+## localStorage vs sessionStorage vs Cookies
+
+| Feature | localStorage | sessionStorage | Cookies |
+|---------|-------------|----------------|---------|
+| Capacity | ~5MB | ~5MB | ~4KB |
+| Expires | Never | Tab close | Set by developer |
+| Sent to server | ❌ | ❌ | ✅ (every request) |
+| Accessible in JS | ✅ | ✅ | ✅ |
+| Use case | User prefs, cache | Temp session data | Auth tokens, server |
+
+---
+
+## 🌍 URL & Location
+
+```js
+// window.location
+location.href          // full URL
+location.origin        // "https://example.com"
+location.pathname      // "/products/detail"
+location.search        // "?id=5&color=red"
+location.hash          // "#section2"
+location.hostname      // "example.com"
+
+// Navigate
+location.href = "https://google.com";  // redirect
+location.assign("page.html");          // navigate (adds to history)
+location.replace("page.html");         // navigate (NO history entry)
+location.reload();                     // refresh page
+
+// URLSearchParams — parse query strings
+const params = new URLSearchParams(location.search);
+params.get("id");        // "5"
+params.get("color");     // "red"
+params.has("id");        // true
+params.set("page", "2");
+params.toString();       // "id=5&color=red&page=2"
+```
+
+---
+
+## 🕰️ History API
+
+```js
+history.back();          // go back
+history.forward();       // go forward
+history.go(-2);          // go back 2 pages
+
+// SPA routing (no page reload)
+history.pushState({ page: 1 }, "Title", "/new-url");   // adds to history
+history.replaceState({ page: 1 }, "Title", "/new-url"); // replaces current entry
+
+// Listen for navigation
+window.addEventListener("popstate", (e) => {
+  console.log("Navigated to:", location.pathname);
+});
+```
+
+---
+
+## 📣 Notifications API
+
+```js
+async function notify() {
+  const permission = await Notification.requestPermission();
+
+  if (permission === "granted") {
+    new Notification("New Message!", {
+      body: "You have a new notification",
+      icon: "/icon.png"
+    });
+  }
+}
+```
+
+---
+
+## 📋 Clipboard API
+
+```js
+// Copy to clipboard
+async function copyText(text) {
+  await navigator.clipboard.writeText(text);
+  console.log("Copied!");
+}
+
+// Read from clipboard
+async function readText() {
+  const text = await navigator.clipboard.readText();
+  console.log(text);
+}
+```
+
+---
+
+## ⏳ Useful Timing APIs
+
+```js
+// Performance timing
+const start = performance.now();
+// ... some code ...
+const end = performance.now();
+console.log(`Took ${end - start}ms`);
+
+// requestAnimationFrame — smooth animations (synced to display refresh)
+function animate() {
+  // update animation
+  requestAnimationFrame(animate);  // ~60fps
+}
+requestAnimationFrame(animate);
+```
+
+---
+
+## 🔔 Console Methods
+
+```js
+console.log("Info");
+console.warn("Warning!");       // yellow
+console.error("Error!");        // red
+console.table([{a:1},{a:2}]);   // tabular format
+console.group("Group");
+  console.log("inside group");
+console.groupEnd();
+console.time("timer");
+  // code to measure
+console.timeEnd("timer");       // prints elapsed time
+console.clear();                // clear console
+```
+
+---
+
+## 📝 Interview Questions
+
+**Q1. What is the difference between `localStorage` and `sessionStorage`?**
+> Both store key-value string data in the browser. `localStorage` persists indefinitely (until explicitly cleared). `sessionStorage` is cleared when the tab or browser is closed. Both are accessible only by JS (not sent to server automatically).
+
+**Q2. Can you store an object directly in `localStorage`?**
+> No. `localStorage` only stores strings. You must serialize with `JSON.stringify()` before storing and `JSON.parse()` after retrieving.
+
+**Q3. What is the difference between `localStorage` and cookies?**
+> `localStorage` stores more data (~5MB), never expires, and is not sent to the server. Cookies have a ~4KB limit, can have expiry dates, and are automatically sent with every HTTP request — making them useful for server-side authentication.
+
+**Q4. What does `location.replace()` do differently from `location.assign()`?**
+> Both navigate to a new URL. `assign()` adds a new entry to the browser history (user can click Back). `replace()` replaces the current history entry — the user cannot go back to the previous page.
+
+**Q5. What is `URLSearchParams` and why is it useful?**
+> It provides an easy way to parse, read, and modify URL query strings. Instead of manually splitting `?id=5&color=red`, you use `params.get("id")` for clean access.
+
+**Q6. What is `requestAnimationFrame` and why is it better than `setInterval` for animations?**
+> `requestAnimationFrame` syncs to the browser's repaint cycle (~60fps), pauses when the tab is hidden (saving resources), and produces smoother animations. `setInterval` fires at a fixed rate regardless of frame rate or tab visibility.
+
+**Q7. What is `performance.now()` used for?**
+> It returns a high-resolution timestamp (in milliseconds). Used for measuring how long code takes to execute — much more precise than `Date.now()` for performance profiling.
+
+---
+
+*Next: DOM Practical Patterns & Best Practices →*

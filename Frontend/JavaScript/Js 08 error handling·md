@@ -1,0 +1,237 @@
+# JavaScript – Error Handling
+
+---
+
+## 📘 Why Error Handling?
+
+Without error handling, a single runtime error crashes the entire script. Proper error handling makes apps **resilient** and gives users/developers meaningful feedback.
+
+---
+
+## 🧱 try / catch / finally
+
+```js
+try {
+  // Code that might throw an error
+  const result = JSON.parse("invalid json");
+} catch (error) {
+  // Runs if an error is thrown in try
+  console.error("Something went wrong:", error.message);
+} finally {
+  // ALWAYS runs — with or without an error
+  console.log("Cleanup done");
+}
+```
+
+### The Error Object
+```js
+try {
+  null.name;  // TypeError
+} catch (e) {
+  e.name      // "TypeError"
+  e.message   // "Cannot read properties of null"
+  e.stack     // full stack trace (for debugging)
+}
+```
+
+---
+
+## 🔥 Types of Built-in Errors
+
+```js
+// SyntaxError — invalid code (caught at parse time)
+JSON.parse("{bad json}");  // SyntaxError
+
+// ReferenceError — variable doesn't exist
+console.log(notDefined);   // ReferenceError
+
+// TypeError — wrong type operation
+null.toString();           // TypeError
+undefined();               // TypeError
+
+// RangeError — value out of allowed range
+new Array(-1);             // RangeError
+
+// URIError — malformed URI
+decodeURIComponent("%");   // URIError
+```
+
+---
+
+## 🎯 Throwing Errors
+
+```js
+// Throw any value (but Error objects are best practice)
+throw new Error("Something went wrong");
+throw new TypeError("Expected a string");
+throw new RangeError("Age must be 0–120");
+
+// Throw in a function
+function divide(a, b) {
+  if (b === 0) throw new Error("Cannot divide by zero");
+  return a / b;
+}
+
+try {
+  divide(10, 0);
+} catch (e) {
+  console.error(e.message);  // "Cannot divide by zero"
+}
+```
+
+---
+
+## 🏗️ Custom Error Classes
+
+```js
+class ValidationError extends Error {
+  constructor(message, field) {
+    super(message);
+    this.name = "ValidationError";
+    this.field = field;
+  }
+}
+
+class NetworkError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.name = "NetworkError";
+    this.statusCode = statusCode;
+  }
+}
+
+// Usage
+function validateAge(age) {
+  if (typeof age !== "number") {
+    throw new ValidationError("Age must be a number", "age");
+  }
+  if (age < 0 || age > 120) {
+    throw new ValidationError("Age out of range", "age");
+  }
+}
+
+try {
+  validateAge("twenty");
+} catch (e) {
+  if (e instanceof ValidationError) {
+    console.log(`Field: ${e.field}, Message: ${e.message}`);
+  } else {
+    throw e;  // re-throw unknown errors
+  }
+}
+```
+
+---
+
+## ⚡ Error Handling with Async / Await
+
+```js
+// try/catch with async functions
+async function fetchUser(id) {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+
+    if (!response.ok) {
+      throw new NetworkError("Request failed", response.status);
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (e) {
+    if (e instanceof NetworkError) {
+      console.error(`Network error ${e.statusCode}: ${e.message}`);
+    } else {
+      console.error("Unexpected error:", e.message);
+    }
+    return null;
+  }
+}
+```
+
+### Promise `.catch()`
+```js
+fetch("/api/data")
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => console.error("Failed:", err.message));
+
+// Unhandled Promise rejections (bad — avoid)
+fetch("/api/data").then(res => res.json()); // ⚠️ no .catch()
+```
+
+---
+
+## 🌐 Global Error Handlers
+
+```js
+// Catch all unhandled sync errors
+window.onerror = function(message, source, line, col, error) {
+  console.error("Global error:", message);
+  return true;  // prevents default browser error handling
+};
+
+// Catch unhandled Promise rejections
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("Unhandled Promise:", event.reason);
+  event.preventDefault();
+});
+```
+
+---
+
+## 🔒 Safe Patterns
+
+### Safe JSON Parse
+```js
+function safeJsonParse(str, fallback = null) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
+  }
+}
+
+safeJsonParse('{"name":"Ali"}')  // { name: "Ali" }
+safeJsonParse("bad json")        // null
+```
+
+### Safe localStorage Read
+```js
+function getFromStorage(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch {
+    return null;
+  }
+}
+```
+
+---
+
+## 📝 Interview Questions
+
+**Q1. What is the purpose of `try/catch`?**
+> It wraps code that might throw an error. If an error occurs in the `try` block, execution jumps to `catch` — preventing the script from crashing. The `catch` block receives the error object for handling or logging.
+
+**Q2. When does `finally` run?**
+> Always — whether an error was thrown or not, whether the `try` succeeded or `catch` handled it. Used for cleanup tasks like closing connections, hiding loading spinners, or releasing resources.
+
+**Q3. What is the difference between `throw new Error()` and `throw "error message"`?**
+> `throw new Error()` creates an Error object with `name`, `message`, and `stack` properties — much more informative for debugging. Throwing a plain string only gives you the string with no stack trace. Always throw Error objects.
+
+**Q4. What is `instanceof` used for in error handling?**
+> To check which type of error was caught, so you can handle different error types differently. Example: `if (e instanceof ValidationError)` vs `if (e instanceof NetworkError)` — allowing targeted handling and re-throwing unknown errors.
+
+**Q5. How do you handle errors in async/await functions?**
+> Wrap the `await` calls in a `try/catch` block. The `catch` block receives the rejection reason as an Error object. Without this, rejected Promises become unhandled rejections.
+
+**Q6. What is an unhandled Promise rejection?**
+> When a Promise is rejected but no `.catch()` or `try/catch` handles it. Modern browsers and Node.js warn about these. Use `window.addEventListener("unhandledrejection", ...)` to catch them globally.
+
+**Q7. Why would you create a custom Error class?**
+> To add extra context (like `field`, `statusCode`) and to differentiate error types using `instanceof`. It makes error handling precise and meaningful rather than inspecting error messages with string matching.
+
+---
+
+*You now have all core JS topics covered!*

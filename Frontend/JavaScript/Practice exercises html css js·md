@@ -1,0 +1,282 @@
+# Practice Exercises – HTML + CSS + JavaScript
+
+> Exercises are grouped by difficulty. Each builds on the last.
+> Every exercise has: **Goal**, **Requirements**, and **Bonus challenges**.
+
+---
+
+## 🟢 LEVEL 1 — Beginner (CSS + HTML)
+
+---
+
+### Exercise 1 — Profile Card
+**Goal:** Build a styled profile card component.
+
+**Requirements:**
+- Avatar image (circle shape)
+- Name, job title, short bio
+- Three social icon buttons (GitHub, LinkedIn, Twitter)
+- Centered on the page using Flexbox
+
+**Concepts:** Box model, border-radius, flexbox centering, hover states
+
+**Bonus:**
+- Add a smooth hover effect that lifts the card (`transform: translateY`)
+- Make it responsive — full width on mobile
+
+---
+
+### Exercise 2 — Responsive Navigation Bar
+**Goal:** Build a top navigation bar.
+
+**Requirements:**
+- Logo on the left, nav links on the right
+- Active link has a different color + underline
+- Links have hover effects
+
+**Concepts:** Flexbox, `justify-content: space-between`, pseudo-classes
+
+**Bonus:**
+- On mobile (< 768px), stack links vertically
+- Add a sticky navbar that stays at top on scroll
+
+---
+
+### Exercise 3 — CSS Grid Photo Gallery
+**Goal:** Create a photo grid gallery.
+
+**Requirements:**
+- At least 6 images in a grid
+- 3 columns on desktop, 2 on tablet, 1 on mobile
+- Uniform card size, images fit without distortion (`object-fit: cover`)
+
+**Concepts:** CSS Grid, `auto-fit`, `minmax`, `object-fit`, media queries
+
+**Bonus:**
+- Make one featured image span 2 columns
+- Add a hover overlay with the image title
+
+---
+
+### Exercise 4 — Pricing Table
+**Goal:** Build a 3-column pricing table (Basic / Pro / Enterprise).
+
+**Requirements:**
+- Each card: plan name, price, list of features, CTA button
+- Middle card ("Pro") is highlighted differently (different border/background)
+- Fully responsive
+
+**Concepts:** Flexbox or Grid, CSS variables for colors, `transform: scale` on featured card
+
+**Bonus:**
+- Animate the highlighted card with a pulsing box-shadow
+- Add a toggle switch between Monthly / Annual pricing
+
+---
+
+## 🟡 LEVEL 2 — Intermediate (JS + DOM)
+
+---
+
+### Exercise 5 — Counter App
+**Goal:** Build an interactive counter.
+
+**Requirements:**
+- Display a number starting at 0
+- Three buttons: Increment, Decrement, Reset
+- Number turns red when negative, green when positive
+
+**Concepts:** DOM manipulation, `classList`, event listeners, conditional styling
+
+**Bonus:**
+- Add a step input — user sets how much to increment/decrement
+- Save the count to `localStorage` so it persists on refresh
+
+---
+
+### Exercise 6 — To-Do List App
+**Goal:** Build a fully functional to-do list.
+
+**Requirements:**
+- Input field + Add button to create tasks
+- Each task has a ✅ Complete toggle and 🗑 Delete button
+- Completed tasks have strikethrough style
+- Show total count of remaining tasks
+
+**Concepts:** DOM creation, event delegation, classList, array state
+
+**Bonus:**
+- Filter buttons: All / Active / Completed
+- Save tasks to `localStorage` — persist on refresh
+- Allow editing a task by double-clicking it
+
+---
+
+### Exercise 7 — Form Validation
+**Goal:** Build a registration form with full client-side validation.
+
+**Fields:** Name, Email, Password, Confirm Password, Age
+
+**Requirements:**
+- Validate on submit (not just on blur)
+- Show inline error messages below each invalid field
+- Show red border on invalid fields, green on valid
+- Don't submit unless all fields pass
+
+**Validation rules:**
+- Name: required, min 3 characters
+- Email: required, valid format
+- Password: min 8 characters, must contain a number
+- Confirm Password: must match password
+- Age: required, must be 18–100
+
+**Concepts:** Form events, `preventDefault`, regex, DOM manipulation
+
+**Bonus:**
+- Live validation as user types (on `input` event)
+- Show a password strength meter (Weak / Medium / Strong)
+
+---
+
+### Exercise 8 — Live Search / Filter
+**Goal:** Build a product list with live search filtering.
+
+**Requirements:**
+- Hardcode an array of 10+ products (name, category, price)
+- Render all products as cards on page load
+- Search input filters products by name in real time
+- Show "No results found" when nothing matches
+
+**Concepts:** Array `filter`, DOM re-rendering, event listeners on input
+
+**Bonus:**
+- Add category dropdown filter (combine with search)
+- Debounce the search input (300ms)
+- Sort by price (Low → High / High → Low)
+
+---
+
+### Exercise 9 — Quiz App
+**Goal:** Build a multi-question quiz.
+
+**Requirements:**
+- Array of 5 questions with 4 options each
+- Show one question at a time
+- Highlight correct (green) and wrong (red) answers on selection
+- Track and display score at the end
+- Restart button to retake
+
+**Concepts:** Arrays of objects, DOM rendering, conditional logic, state management
+
+**Bonus:**
+- Add a countdown timer per question (15 seconds)
+- Show which questions were answered wrong at the end
+- Animate the progress bar between questions
+
+---
+
+## 🔴 LEVEL 3 — Advanced (Async + Fetch + Full DOM)
+
+---
+
+### Exercise 10 — Weather App
+**Goal:** Fetch and display real weather data.
+
+**API:** `https://wttr.in/{city}?format=j1` (free, no key needed)
+
+**Requirements:**
+- Input for city name + Search button
+- Display: city name, temperature, weather condition, humidity
+- Show loading spinner while fetching
+- Show error message if city not found
+
+**Concepts:** Fetch API, async/await, try/catch, DOM manipulation, loading states
+
+**Bonus:**
+- Show 3-day forecast
+- Save last searched city in `localStorage`
+- Add debounce to auto-search as user types
+
+---
+
+### Exercise 11 — GitHub User Search
+**Goal:** Search GitHub users and display their profiles.
+
+**API:** `https://api.github.com/users/{username}` (free)
+
+**Requirements:**
+- Search input for GitHub username
+- Display: avatar, name, bio, public repos count, followers, following
+- Clickable link to their GitHub profile
+- Handle user not found (404)
+
+**Concepts:** Fetch, async/await, error handling by status code, conditional rendering
+
+**Bonus:**
+- Also fetch and display their latest 5 repos
+- Add skeleton loading cards while fetching
+
+---
+
+### Exercise 12 — Expense Tracker
+**Goal:** A complete expense tracking mini-app.
+
+**Requirements:**
+- Add expense: description, amount, category (Food/Transport/Shopping/Other)
+- Display all expenses in a list with delete button
+- Show total balance at top
+- Separate totals by category
+- Persist data in `localStorage`
+
+**Concepts:** localStorage, array methods, DOM rendering, event delegation, `reduce`
+
+**Bonus:**
+- Edit existing expenses
+- Export as CSV (using Blob and anchor download)
+- Chart showing spending by category (CSS bar chart, no library)
+
+---
+
+## 📋 Mini Coding Challenges (Interview Style)
+
+These are short algorithmic tasks — solve them in the browser console or a JS file.
+
+```
+1.  FizzBuzz: 1–100, print "Fizz" (3), "Buzz" (5), "FizzBuzz" (both)
+2.  Reverse a string without using .reverse()
+3.  Find the largest number in an array without Math.max
+4.  Remove duplicates from an array without Set
+5.  Count how many times each word appears in a sentence
+6.  Flatten a nested array [[1,[2]],3] → [1,2,3] without .flat()
+7.  Write a function that deep-clones an object (no JSON tricks)
+8.  Implement a simple debounce function from scratch
+9.  Write a function that checks if two objects have the same keys and values
+10. Given an array of user objects, group them by their `role` property
+11. Write a Promise-based delay function: delay(1000).then(() => console.log("done"))
+12. Implement Array.prototype.map from scratch using a for loop
+```
+
+---
+
+## 🏆 Capstone Project — Personal Portfolio Page
+
+Build a complete **personal portfolio** using everything learned.
+
+**Sections:**
+1. **Hero** — Name, tagline, CTA button (smooth scroll to Contact)
+2. **About** — Short bio with a photo
+3. **Skills** — CSS-animated skill bars or tags
+4. **Projects** — 3 project cards (fetch from a local JSON or hardcoded)
+5. **Contact** — Validated form (no backend needed — show success message)
+
+**Requirements:**
+- Fully responsive (mobile, tablet, desktop)
+- Sticky navbar with active section highlight on scroll (IntersectionObserver)
+- Smooth scroll navigation
+- Dark/Light mode toggle (saved in localStorage)
+- At least one CSS animation
+- Form validation before "submit"
+
+---
+
+*Tip for the student: do Level 1 → 2 → 3 in order. Each level adds a new concept on top of the last.*
